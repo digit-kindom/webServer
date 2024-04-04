@@ -26,15 +26,10 @@ def id_create(request):
             }
             # 将数据存入数据库
             # 在Device_datatype表中添加一行
-            Device_datatype = models.Device_datatype.objects.create()
-            # 添加数据
-            Device_datatype.id = Id
-            Device_datatype.binary_type = True
-            Device_datatype.value_type = False
-            Device_datatype.diff_typr = False
-            Device_datatype.inte_type = False
-            Device_datatype.save()
+            Device_datatype = models.Device_datatype.objects.create(id=Id, binary_type=True, value_type=False,
+                                                                    diff_typr=False, inte_type=False)
 
+            # Device_datatype.save()
             return HttpResponse(json.dumps(data))
         else:
             error_data = {
