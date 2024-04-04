@@ -1,38 +1,51 @@
 import json
 
-from django.shortcuts import render
-
 # Create your views here.
-from django.http import JsonResponse, HttpResponse
-from device import models
+from django.http import HttpResponse
 from django.http import JsonResponse
+
+from device import models
+
 
 def index(request):  # 网页直接访问，helloworld
     if request.method == 'GET':
         return JsonResponse('Hello world', safe=False)
     else:
-     return JsonResponse('world is left')
+        return JsonResponse('world is left')
+
 
 def id_create(request):
     if request.method == 'POST':
-        data=eval(request.body)
+        data = eval(request.body)
         Id = data['id']
         if Id is not None:
-         data = {
-             "status": True,
-             "msg": "string",
-             "id": Id,
+            data = {
+                "status": True,
+                "msg": "string",
+                "id": Id,
             }
-         return HttpResponse(json.dumps(data))
+            # 将数据存入数据库
+            # 在Device_datatype表中添加一行
+            Device_datatype = models.Device_datatype.objects.create()
+            # 添加数据
+            Device_datatype.id = Id
+            Device_datatype.binary_type = True
+            Device_datatype.value_type = False
+            Device_datatype.diff_typr = False
+            Device_datatype.inte_type = False
+            Device_datatype.save()
+
+            return HttpResponse(json.dumps(data))
         else:
-            error_data={
+            error_data = {
                 "status": False,
                 "msg": "string",
-                "id":None,
+                "id": None,
             }
             return HttpResponse(json.dumps(error_data))
-    elif request.method=='GET':
+    elif request.method == 'GET':
         return HttpResponse(json.dumps("请以POST方式提交"))
+
 
 def id_list_time(request):  # 依据时间对设备进行数据查询
     if request.method == 'GET':
@@ -42,14 +55,14 @@ def id_list_time(request):  # 依据时间对设备进行数据查询
     elif request.method == 'POST':
         Id = request.GET.get('id')
         models.Device.objects.create(id=Id)
-        return JsonResponse({"status":"true"},{"msg":"string"},{"id":Id})
+        return JsonResponse({"status": "true"}, {"msg": "string"}, {"id": Id})
 
 
 def id_history_state(request):  # 数据设备历史状态查询
     if request.method == 'GET':
-        Id=request.GET.get('id')
-        models.Device.objects.filter(device_status='0',id=Id)
-        models.Device.objects.filter(device_status='1',id=Id)
+        Id = request.GET.get('id')
+        models.Device.objects.filter(device_status='0', id=Id)
+        models.Device.objects.filter(device_status='1', id=Id)
     return JsonResponse('以获取开关状态', safe=False)
 
 
